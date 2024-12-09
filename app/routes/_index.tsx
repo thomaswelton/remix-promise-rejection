@@ -1,4 +1,25 @@
 import type { MetaFunction } from "@remix-run/node";
+import {Await, useAsyncError, useLoaderData} from "react-router";
+import {Suspense} from "react";
+
+// Simulate a network request
+const asyncPromise = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('done');
+    }, 1000);
+  });
+}
+
+export const loader = () => {
+    const getData = () => {
+      return asyncPromise().then(() => {
+        throw new Error('error message');
+      })
+    };
+
+    return { data: getData() };
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,7 +28,15 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+const ErrorComponent = () => {
+  const error = useAsyncError();
+
+  return <>{error.message}</>;
+};
+
 export default function Index() {
+  const data = useLoaderData();
+
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-16">
@@ -15,6 +44,13 @@ export default function Index() {
           <h1 className="leading text-2xl font-bold text-gray-800 dark:text-gray-100">
             Welcome to <span className="sr-only">Remix</span>
           </h1>
+          
+          <Suspense fallback={<>Loading</>}>
+          <Await resolve={data.data} errorElement={<ErrorComponent />}>
+            <>Done</>
+          </Await>
+          </Suspense>
+
           <div className="h-[144px] w-[434px]">
             <img
               src="/logo-light.png"
