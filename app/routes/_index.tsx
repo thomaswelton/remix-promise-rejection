@@ -44,7 +44,7 @@ export default function Index() {
           <h1 className="leading text-2xl font-bold text-gray-800 dark:text-gray-100">
             Welcome to <span className="sr-only">Remix</span>
           </h1>
-          
+
           <Suspense fallback={<>Loading</>}>
           <Await resolve={data.data} errorElement={<ErrorComponent />}>
             <>Done</>
